@@ -1,0 +1,79 @@
+package com.example.demo.controller;
+
+import com.example.demo.entity.CustomInfo;
+import com.example.demo.service.CustomInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
+
+@Controller
+public class CustomInfoController {
+    
+    @Autowired
+    private CustomInfoService customInfoService;
+    
+    @GetMapping("/")
+    public String index() {
+        return "index";
+    }
+    
+    @GetMapping("/input")
+    public String inputForm(Model model) {
+        model.addAttribute("customInfo", new CustomInfo());
+        return "input";
+    }
+    
+    @PostMapping("/input")
+    public String submitForm(@ModelAttribute CustomInfo customInfo, Model model) {
+        try {
+            customInfoService.save(customInfo);
+            model.addAttribute("message", "データが正常に保存されました。");
+            model.addAttribute("customInfo", new CustomInfo());
+        } catch (Exception e) {
+            model.addAttribute("error", "データの保存中にエラーが発生しました: " + e.getMessage());
+        }
+        return "input";
+    }
+    
+    @GetMapping("/search")
+    public String searchForm(Model model) {
+        // 検索結果をクリア
+        model.addAttribute("searchPerformed", false);
+        return "search";
+    }
+    
+    @PostMapping("/search")
+    public String searchResult(@RequestParam Integer shopId, 
+                             @RequestParam Integer cif, 
+                             Model model) {
+        try {
+            // 検索実行フラグを設定
+            model.addAttribute("searchPerformed", true);
+            model.addAttribute("searchShopId", shopId);
+            model.addAttribute("searchCif", cif);
+            
+            Optional<CustomInfo> customInfo = customInfoService.findByShopIdAndCif(shopId, cif);
+            
+            if (customInfo.isPresent()) {
+                // データが見つかった場合：結果画面に遷移
+                model.addAttribute("customInfo", customInfo.get());
+                return "result";
+            } else {
+                // データが見つからない場合：検索画面にエラーメッセージを表示
+                model.addAttribute("errorMessage", 
+                    String.format("店舗ID: %d、CIF番号: %d に該当する顧客情報が存在しません。", shopId, cif));
+                return "search";
+            }
+        } catch (Exception e) {
+            // システムエラーの場合
+            model.addAttribute("errorMessage", 
+                "検索中にシステムエラーが発生しました: " + e.getMessage());
+            model.addAttribute("searchPerformed", true);
+            model.addAttribute("searchShopId", shopId);
+            model.addAttribute("searchCif", cif);
+            return "search";
+        }
+    }
+}

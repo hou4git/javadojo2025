@@ -1,0 +1,57 @@
+package com.JavaDojo2025.CustomManage.controller;
+
+import com.JavaDojo2025.CustomManage.entity.CustomInfo;
+import com.JavaDojo2025.CustomManage.service.CustomInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import java.util.Optional;
+
+@Controller
+public class CustomInfoController {
+    
+    @Autowired
+    private CustomInfoService customInfoService;
+    
+    @GetMapping("/")
+    public String index() {
+        return "index";
+    }
+    
+    @GetMapping("/input")
+    public String inputForm(Model model) {
+        model.addAttribute("customInfo", new CustomInfo());
+        return "input";
+    }
+    
+    @PostMapping("/input")
+    public String submitForm(@ModelAttribute CustomInfo customInfo, Model model) {
+        try {
+            customInfoService.save(customInfo);
+            model.addAttribute("message", "データが正常に保存されました。");
+            model.addAttribute("customInfo", new CustomInfo());
+        } catch (Exception e) {
+            model.addAttribute("error", "データの保存中にエラーが発生しました: " + e.getMessage());
+        }
+        return "input";
+    }
+    
+    @GetMapping("/search")
+    public String searchForm() {
+        return "search";
+    }
+    
+    @PostMapping("/search")
+    public String searchResult(@RequestParam Integer shopId, 
+                             @RequestParam Integer cif, 
+                             Model model) {
+        Optional<CustomInfo> customInfo = customInfoService.findByShopIdAndCif(shopId, cif);
+        if (customInfo.isPresent()) {
+            model.addAttribute("customInfo", customInfo.get());
+        } else {
+            model.addAttribute("message", "データが見つかりませんでした。");
+        }
+        return "result";
+    }
+}
