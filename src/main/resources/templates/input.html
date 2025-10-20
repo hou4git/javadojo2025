@@ -5,79 +5,370 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>顧客情報入力</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { width: 300px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .btn:hover { background-color: #0056b3; }
-        .message { color: green; margin: 10px 0; }
-        .error { color: red; margin: 10px 0; }
-        .back-link { margin-top: 20px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        /* 成功・エラーメッセージ */
+        .message { 
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .error { 
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px; 
+            border-radius: 4px; 
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        /* テーブルスタイル（結果表示画面と同じ） */
+        .input-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .input-table th, .input-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+        .input-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            width: 25%;
+            color: #495057;
+        }
+        .input-table td {
+            color: #212529;
+            width: 75%;
+        }
+        .input-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* 入力フィールドスタイル */
+        .input-table input[type="text"],
+        .input-table input[type="number"],
+        .input-table input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .input-table input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        .input-table input:required {
+            border-left: 3px solid #007bff;
+        }
+        
+        /* 必須マーク */
+        .required {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        /* ボタンエリア */
+        .button-group {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 0 10px;
+            text-decoration: none;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        /* フィールドの説明 */
+        .field-description {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        /* 入力例 */
+        .input-example {
+            font-size: 12px;
+            color: #28a745;
+            margin-top: 2px;
+        }
     </style>
 </head>
 <body>
-    <h1>顧客情報入力</h1>
-    
-    <div th:if="${message}" class="message" th:text="${message}"></div>
-    <div th:if="${error}" class="error" th:text="${error}"></div>
-    
-    <form th:action="@{/input}" th:object="${customInfo}" method="post">
-        <div class="form-group">
-            <label for="shopId">店舗ID:</label>
-            <input type="number" id="shopId" th:field="*{shopId}" required>
-        </div>
+    <div class="container">
+        <h1>顧客情報入力</h1>
         
-        <div class="form-group">
-            <label for="cif">CIF番号:</label>
-            <input type="number" id="cif" th:field="*{cif}" required>
-        </div>
+        <!-- 成功メッセージ表示 -->
+        <div th:if="${message}" class="message" th:text="${message}"></div>
         
-        <div class="form-group">
-            <label for="nameKanji">氏名（漢字）:</label>
-            <input type="text" id="nameKanji" th:field="*{nameKanji}" required>
-        </div>
+        <!-- エラーメッセージ表示 -->
+        <div th:if="${error}" class="error" th:text="${error}"></div>
         
-        <div class="form-group">
-            <label for="nameKana">氏名（カナ）:</label>
-            <input type="text" id="nameKana" th:field="*{nameKana}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="nameRomaji">氏名（ローマ字）:</label>
-            <input type="text" id="nameRomaji" th:field="*{nameRomaji}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="postCode">郵便番号:</label>
-            <input type="text" id="postCode" th:field="*{postCode}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="address1">住所1:</label>
-            <input type="text" id="address1" th:field="*{address1}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="address2">住所2:</label>
-            <input type="text" id="address2" th:field="*{address2}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phoneNum">電話番号:</label>
-            <input type="text" id="phoneNum" th:field="*{phoneNum}" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="birthDate">生年月日:</label>
-            <input type="date" id="birthDate" th:field="*{birthDate}">
-        </div>
-        
-        <button type="submit" class="btn">保存</button>
-    </form>
-    
-    <div class="back-link">
-        <a href="/">メニューに戻る</a>
+        <form th:action="@{/input}" th:object="${customInfo}" method="post" id="inputForm">
+            <table class="input-table">
+                <tr>
+                    <th>店舗ID <span class="required">*</span></th>
+                    <td>
+                        <input type="number" 
+                               id="shopId" 
+                               th:field="*{shopId}" 
+                               required 
+                               min="1"
+                               placeholder="例: 1">
+                        <div class="field-description">1以上の数値を入力してください</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>CIF番号 <span class="required">*</span></th>
+                    <td>
+                        <input type="number" 
+                               id="cif" 
+                               th:field="*{cif}" 
+                               required 
+                               min="1"
+                               placeholder="例: 12345">
+                        <div class="field-description">1以上の数値を入力してください</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>氏名（漢字） <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="nameKanji" 
+                               th:field="*{nameKanji}" 
+                               required 
+                               maxlength="100"
+                               placeholder="例: 田中太郎">
+                        <div class="field-description">漢字で氏名を入力してください（100文字以内）</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>氏名（カナ） <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="nameKana" 
+                               th:field="*{nameKana}" 
+                               required 
+                               maxlength="100"
+                               placeholder="例: タナカタロウ">
+                        <div class="field-description">カタカナで氏名を入力してください（100文字以内）</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>氏名（ローマ字） <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="nameRomaji" 
+                               th:field="*{nameRomaji}" 
+                               required 
+                               maxlength="100"
+                               placeholder="例: Tanaka Taro">
+                        <div class="field-description">ローマ字で氏名を入力してください（100文字以内）</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>郵便番号 <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="postCode" 
+                               th:field="*{postCode}" 
+                               required 
+                               maxlength="8"
+                               pattern="[0-9]{3}-?[0-9]{4}"
+                               placeholder="例: 123-4567">
+                        <div class="field-description">ハイフン付きまたはなしで入力してください（8文字以内）</div>
+                        <div class="input-example">入力例: 123-4567 または 1234567</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>住所1 <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="address1" 
+                               th:field="*{address1}" 
+                               required 
+                               maxlength="100"
+                               placeholder="例: 東京都渋谷区渋谷1-1-1">
+                        <div class="field-description">都道府県・市区町村・町名を入力してください（100文字以内）</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>住所2 <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="address2" 
+                               th:field="*{address2}" 
+                               required 
+                               maxlength="100"
+                               placeholder="例: マンション名 101号室">
+                        <div class="field-description">建物名・部屋番号等を入力してください（100文字以内）</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>電話番号 <span class="required">*</span></th>
+                    <td>
+                        <input type="text" 
+                               id="phoneNum" 
+                               th:field="*{phoneNum}" 
+                               required 
+                               maxlength="20"
+                               pattern="[0-9\-]+"
+                               placeholder="例: 03-1234-5678">
+                        <div class="field-description">ハイフン付きまたはなしで入力してください（20文字以内）</div>
+                        <div class="input-example">入力例: 03-1234-5678 または 0312345678</div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th>生年月日</th>
+                    <td>
+                        <input type="date" 
+                               id="birthDate" 
+                               th:field="*{birthDate}"
+                               max="9999-12-31">
+                        <div class="field-description">生年月日を選択してください（任意入力）</div>
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary" id="submitBtn">保存</button>
+                <a href="/" class="btn btn-secondary">メニューに戻る</a>
+            </div>
+        </form>
     </div>
+
+    <script>
+        // フォーム送信時のローディング状態
+        document.getElementById('inputForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // 基本的な入力チェック
+            const shopId = document.getElementById('shopId').value;
+            const cif = document.getElementById('cif').value;
+            const nameKanji = document.getElementById('nameKanji').value;
+            const nameKana = document.getElementById('nameKana').value;
+            const nameRomaji = document.getElementById('nameRomaji').value;
+            const postCode = document.getElementById('postCode').value;
+            const address1 = document.getElementById('address1').value;
+            const address2 = document.getElementById('address2').value;
+            const phoneNum = document.getElementById('phoneNum').value;
+            
+            // 必須項目チェック
+            if (!shopId || !cif || !nameKanji || !nameKana || !nameRomaji || 
+                !postCode || !address1 || !address2 || !phoneNum) {
+                alert('必須項目（*）をすべて入力してください。');
+                e.preventDefault();
+                return;
+            }
+            
+            // 数値チェック
+            if (parseInt(shopId) <= 0 || parseInt(cif) <= 0) {
+                alert('店舗IDとCIF番号は1以上の数値を入力してください。');
+                e.preventDefault();
+                return;
+            }
+            
+            // ローディング状態に変更
+            submitBtn.disabled = true;
+            submitBtn.textContent = '保存中...';
+            submitBtn.style.backgroundColor = '#6c757d';
+            
+            // タイムアウト対策（10秒後にボタンを復元）
+            setTimeout(function() {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '保存';
+                submitBtn.style.backgroundColor = '#007bff';
+            }, 10000);
+        });
+        
+        // カナ入力時の自動変換補助
+        document.getElementById('nameKana').addEventListener('input', function(e) {
+            // ひらがなをカタカナに変換
+            e.target.value = e.target.value
+                .replace(/[ぁ-ん]/g, function(s) {
+                    return String.fromCharCode(s.charCodeAt(0) + 0x60);
+                });
+        });
+        
+        // 郵便番号の自動フォーマット
+        document.getElementById('postCode').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            if (value.length > 3) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 7);
+            }
+            e.target.value = value;
+        });
+        
+        // 電話番号の自動フォーマット（簡易版）
+        document.getElementById('phoneNum').addEventListener('input', function(e) {
+            // 数字とハイフンのみ許可
+            e.target.value = e.target.value.replace(/[^0-9\-]/g, '');
+        });
+        
+        // 初期フォーカス
+        window.addEventListener('load', function() {
+            document.getElementById('shopId').focus();
+        });
+    </script>
 </body>
 </html>
