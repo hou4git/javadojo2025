@@ -1,7 +1,7 @@
 package com.JavaDojo2025.CustomManage.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.Valid; // バリデーション使用時
+//import jakarta.validation.Valid; // バリデーション使用時
 import java.time.LocalDate;
 
 @Entity
